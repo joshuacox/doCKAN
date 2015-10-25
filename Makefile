@@ -27,8 +27,13 @@ rundocker:
 	@docker run --name=`cat NAME` \
 	--cidfile="cid" \
 	-d \
-	-P \
+	-p 15900:5900 \
+	-p 15900:5900/udp \
+	-p 16099:6099 \
+	-p 16099:6099/udp \
 	-v $(TMP):$(TMP) \
+	-v ~/.mono:/home/ckan/.mono \
+	-v ~/.local:/home/ckan/.local \
 	-v $(shell cat ksppath):/home/ckan/KSP \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
@@ -69,3 +74,6 @@ ksppath:
 	@while [ -z "$$KSPPATH" ]; do \
 		read -r -p "Enter the path to the ksp folder you wish to sync with [KSPPATH]: " KSPPATH; echo "$$KSPPATH">>ksppath; cat ksppath; \
 	done ;
+
+vnc:
+	xtightvncviewer 127.0.0.1:15900

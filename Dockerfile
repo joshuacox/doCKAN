@@ -19,7 +19,9 @@ RUN echo 'en_US.UTF-8 UTF-8'>>/etc/locale.gen
 RUN locale-gen
 ENV LANG en_US.UTF-8
 
-RUN useradd -m -s /bin/bash ckan
+# you must edit this to match your own user
+ENV HOSTUID 1001
+RUN useradd --uid $HOSTUID -m -s /bin/bash ckan
 RUN usermod -a -G video,audio,tty ckan
 USER ckan
 WORKDIR /home/ckan
@@ -32,6 +34,7 @@ RUN chmod 755 ckan.exe
 RUN     mkdir ~/.vnc
 RUN     x11vnc -storepasswd 1234 ~/.vnc/passwd
 
+# ADD values.xml /home/ckan/.mono/registry/CurrentUser/software/ckan/values.xml
 ADD run.sh /home/ckan/run.sh
 
 EXPOSE 5900 6099
