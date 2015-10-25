@@ -9,7 +9,7 @@ help:
 
 build: builddocker
 
-run: NAME TAG builddocker rundocker
+run: ksppath rm NAME TAG builddocker rundocker
 
 ## useful hints
 ## specifiy ports
@@ -26,9 +26,10 @@ rundocker:
 	chmod 777 $(TMP)
 	@docker run --name=`cat NAME` \
 	--cidfile="cid" \
-	-v $(TMP):/tmp \
 	-d \
 	-P \
+	-v $(TMP):$(TMP) \
+	-v $(shell cat ksppath):/home/ckan/KSP \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
 	-t `cat TAG`
@@ -61,4 +62,10 @@ NAME:
 TAG:
 	@while [ -z "$$TAG" ]; do \
 		read -r -p "Enter the name you wish to associate with this container [TAG]: " TAG; echo "$$TAG">>TAG; cat TAG; \
+	done ;
+
+# will skip over this step if the name file is left from previous run 'make clean' to remove
+ksppath:
+	@while [ -z "$$KSPPATH" ]; do \
+		read -r -p "Enter the path to the ksp folder you wish to sync with [KSPPATH]: " KSPPATH; echo "$$KSPPATH">>ksppath; cat ksppath; \
 	done ;

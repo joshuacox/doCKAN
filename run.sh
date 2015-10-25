@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd /home/ckan
+x11vnc -forever -usepw -create &
 Xvfb :99 -screen 0 1024x768x16 &> xvfb.log &
 echo "started server"
 DISPLAY=:99.0 mono ckan.exe
