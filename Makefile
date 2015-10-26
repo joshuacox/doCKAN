@@ -35,6 +35,9 @@ rundocker:
 	-v ~/.mono:/home/ckan/.mono \
 	-v ~/.local:/home/ckan/.local \
 	-v ~/.config:/home/ckan/.config \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-e DISPLAY=':0' \
+	--device /dev/dri \
 	-v $(shell cat ksppath):/home/ckan/KSP \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
