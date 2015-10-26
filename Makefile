@@ -34,6 +34,7 @@ rundocker:
 	-v $(TMP):$(TMP) \
 	-v ~/.mono:/home/ckan/.mono \
 	-v ~/.local:/home/ckan/.local \
+	-v ~/.config:/home/ckan/.config \
 	-v $(shell cat ksppath):/home/ckan/KSP \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
