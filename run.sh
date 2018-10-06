@@ -7,6 +7,7 @@ cd /home/ckan
 echo "started server"
 #sleep 3
 #DISPLAY=:99.0 mono ckan.exe
+which ckan
 mono ckan.exe
 sleep 3
 #./arma3server details
