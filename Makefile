@@ -1,5 +1,5 @@
 .PHONY: all help build run builddocker rundocker kill rm-image rm clean enter logs
-all: help
+all: run
 
 help:
 	@echo ""
@@ -9,7 +9,7 @@ help:
 
 build: builddocker
 
-run: ksppath rm NAME TAG builddocker rundocker
+run: rundocker
 
 ## useful hints
 ## specifiy ports
@@ -21,10 +21,11 @@ run: ksppath rm NAME TAG builddocker rundocker
 #--env STEAM_USERNAME=`cat steam_username` \
 #--env STEAM_PASSWORD=`cat steam_password` \
 
-rundocker:
+rundocker: VNC_PASS TAG NAME rm ksppath
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
+	$(eval VNC_PASS := $(shell cat VNC_PASS))
 	chmod 777 $(TMP)
-	@docker run --name=`cat NAME` \
+	docker run --name=`cat NAME` \
 	--cidfile="cid" \
 	-d \
 	-p 15900:5900 \
@@ -35,15 +36,24 @@ rundocker:
 	-v ~/.mono:/home/ckan/.mono \
 	-v ~/.local:/home/ckan/.local \
 	-v ~/.config:/home/ckan/.config \
-	-v /tmp/.X11-unix:/tmp/.X11-unix \
-	-e DISPLAY=':0' \
-	--device /dev/dri \
+	-e VNC_PASS=$(VNC_PASS) \
 	-v $(shell cat ksppath):/home/ckan/KSP \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
+	-v /etc/localtime:/etc/localtime:ro \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-e DISPLAY=unix$(DISPLAY) \
+	-e NICENESS=$(NICENESS) \
+	-v /dev/shm:/dev/shm \
+	-v /etc/hosts:/etc/hosts \
+	--device /dev/snd \
+	--device /dev/dri \
+	--device /dev/bus/usb \
+	--group-add audio \
+	--group-add video \
 	-t `cat TAG`
 
-builddocker:
+builddocker: TAG
 	/usr/bin/time -v docker build -t `cat TAG` .
 
 kill:
@@ -55,7 +65,7 @@ rm-image:
 
 rm: kill rm-image
 
-clean: cleanfiles rm
+clean: rm
 
 enter:
 	docker exec -i -t `cat cid` /bin/bash
@@ -81,3 +91,6 @@ ksppath:
 
 vnc:
 	xtightvncviewer 127.0.0.1:15900
+
+VNC_PASS:
+	date +"%y-%m-%d-%H:%M:%S:%p:%N"| sha256sum | base64 | head -c 8 > VNC_PASS
